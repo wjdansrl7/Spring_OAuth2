@@ -1,5 +1,6 @@
 package com.web.controller;
 
+import com.web.annotation.SocialUser;
 import com.web.domain.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,9 +46,13 @@ public class LoginController {
     // 실제로 카카오의 경우에는 getDetails()를 사용하여 개인정보를 가져와도 해당 키값이 다른 소셜 미디어와 다르기 때문에 따로 처리해줘야 한다.
     // -> AOP 구현 :
     // 1. 직접 AOP를 구현하는 방법, 2. 스프링의 전략 인터페이스 중 하나인 HandlerMethodArgumentResolver를 사용하는 방법
-    @GetMapping("/{facebook|google|kakao}/complete")
-    public String loginComplete(User user) {
+//    @GetMapping("/{facebook|google|kakao}/complete")
+//    public String loginComplete(User user) {
+//        return "redirect:/board/list";
+//    }
+
+    @GetMapping("/loginSuccess")
+    public String loginComplete(@SocialUser User user) {
         return "redirect:/board/list";
     }
-
 }

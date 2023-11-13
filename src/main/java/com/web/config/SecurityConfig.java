@@ -6,7 +6,6 @@ import jdk.nashorn.internal.ir.IfNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
-import org.springframework.boot.autoconfigure.social.FacebookAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -15,14 +14,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
-import org.springframework.security.oauth2.client.OAuth2ClientContext;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
-import org.springframework.security.oauth2.client.filter.OAuth2ClientAuthenticationProcessingFilter;
-import org.springframework.security.oauth2.client.filter.OAuth2ClientContextFilter;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
@@ -104,10 +98,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     // 카카오 로그인 연동을 위한 설정 코드 추가
+    /*
+    OAuth2ClientProperties와 카카오 클라이언트 ID를 불러옵니다. 다시 한번 설명하자면 @Configuration으로 등록되어 있는 클래스에서 @Bean으로 등록된
+    메서드의 파라미터로 지정된 객체들은 오토와이어링(autowiring)할 수 있습니다. OAuth2ClientProperties에는 구글과 페이스북의 정보가 들어 있고,
+    카카오는 따로 등록했기 때문에 @Value 어노테이션을 사용하여 수동으로 불러옵니다.
+     */
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository(
             OAuth2ClientProperties oAuth2ClientProperties, @Value(
             "${custom.oauth2.kakao.client-id}") String kakaoClientId) {
+
+        /*
+         registrations 리스트에 카카오 인증 정보를 추가합니다. 실제 요청 시 사용하는 정보는 클라이언트 ID뿐이지만, clientSecret()과 jwtSetUri()가
+         null이면 안 되므로 임시값을 넣었습니다.
+         */
 
         List<ClientRegistration> registrations = oAuth2ClientProperties.getRegistration().keySet().stream()
                 .map(client -> getRegistration(oAuth2ClientProperties, client))
@@ -123,6 +127,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new InMemoryClientRegistrationRepository(registrations);
     }
 
+    /*
+    getRegistration() 메서드를 사용해 구글과 페이스북의 인증 정보를 빌드시켜줍니다.
+     */
     private ClientRegistration getRegistration(OAuth2ClientProperties clientProperties, String client) {
         if ("google".equals(client)) {
             OAuth2ClientProperties.Registration registration = clientProperties.getRegistration().get("google");
@@ -132,6 +139,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .scope("email", "profile")
                     .build();
         }
+        // 페이스북의 그래프 API의 경우 scope()로는 필요한 메서드를 반환해주지 않기 때문에 직접 id, name, eamil, link 등을 파라미터로 넣어
+        // 요청하도록 설정했습니다.
         if ("facebook".equals(client)) {
             OAuth2ClientProperties.Registration registration = clientProperties.getRegistration().get("facebook");
             return CommonOAuth2Provider.FACEBOOK.getBuilder(client)
