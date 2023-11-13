@@ -30,10 +30,8 @@ facebook :
 
 google :
   client :
-#    clientId :  105694632420-dgjuk7t57nv4ubbs04j97d1kkdiom0v6.apps.googleusercontent.com
-    clientId :  223159876501-5fckpj44ou6i9ugognu8pn0ehcbhfmpk.apps.googleusercontent.com
-#    clientSecret: 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
-    clientSecret: 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
+    clientId:
+    clientSecret:
     accessTokenUri: https://accounts.google.com/o/oauth2/token
     redirect-uri: http://localhost:8080/login/oauth2/code/google
     userAuthorizationUri: https://accounts.google.com/o/oauth2/auth
