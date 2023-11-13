@@ -18,8 +18,8 @@ spring:
     oauth2:
       registration:
         google:
-          clientId: 223159876501-5fckpj44ou6i9ugognu8pn0ehcbhfmpk.apps.googleusercontent.com
-          client-secret: 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
+          clientId:
+          client-secret:
         facebook:
           clientId:
           client-secret:
