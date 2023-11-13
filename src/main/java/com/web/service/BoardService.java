@@ -27,7 +27,8 @@ public class BoardService {
     }
 
     public Board findBoardByIdx(Long idx) {
-        return boardRepository.findOne(idx);
+        return boardRepository.findById(idx).orElse(new Board());
+//        return boardRepository.findOne(idx);
     }
 
     public Board saveAndUpdateBoard(Board board) {
